@@ -2,6 +2,8 @@ defmodule BertToJson do
   @moduledoc """
   Documentation for `BertToJson`.
   """
+  use Bakeware.Script
+
   def list2map(:voidmap), do: %{}
   def list2map([{_, _} | _] = l), do: l |> Enum.map(&list2map/1) |> Enum.into(%{})
   def list2map(l) when is_list(l), do: Enum.map(l, &list2map/1)
@@ -22,6 +24,7 @@ defmodule BertToJson do
 
   def decode(v), do: v |> :erlang.binary_to_term() |> list2map
 
+  @impl Bakeware.Script
   def main(args) do
     parsed =
       args
@@ -31,7 +34,7 @@ defmodule BertToJson do
          true <- File.exists?(file),
          bert_data <- File.read!(file) do
       decoded_file = decode(bert_data)
-      File.write!("out.json",Jason.encode!(decoded_file))
+      File.write!("out.json", Jason.encode!(decoded_file))
     else
       _ ->
         IO.puts("Invalid input")
